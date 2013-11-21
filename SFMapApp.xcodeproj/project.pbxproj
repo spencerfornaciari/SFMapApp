@@ -21,6 +21,9 @@
 		892E506C183C3C0500CD4C1C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 892E504E183C3C0500CD4C1C /* UIKit.framework */; };
 		892E5074183C3C0500CD4C1C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 892E5072183C3C0500CD4C1C /* InfoPlist.strings */; };
 		892E5076183C3C0500CD4C1C /* SFMapAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 892E5075183C3C0500CD4C1C /* SFMapAppTests.m */; };
+		892E5080183C3C1B00CD4C1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 892E507F183C3C1B00CD4C1C /* CoreLocation.framework */; };
+		892E5082183C3C2200CD4C1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 892E5081183C3C2200CD4C1C /* MapKit.framework */; };
+		892E5085183D5D4900CD4C1C /* SFMapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 892E5084183D5D4900CD4C1C /* SFMapAnnotation.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +56,10 @@
 		892E5071183C3C0500CD4C1C /* SFMapAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SFMapAppTests-Info.plist"; sourceTree = "<group>"; };
 		892E5073183C3C0500CD4C1C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		892E5075183C3C0500CD4C1C /* SFMapAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SFMapAppTests.m; sourceTree = "<group>"; };
+		892E507F183C3C1B00CD4C1C /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		892E5081183C3C2200CD4C1C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		892E5083183D5D4900CD4C1C /* SFMapAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SFMapAnnotation.h; path = ../SFMapAnnotation.h; sourceTree = "<group>"; };
+		892E5084183D5D4900CD4C1C /* SFMapAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SFMapAnnotation.m; path = ../SFMapAnnotation.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +67,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				892E5082183C3C2200CD4C1C /* MapKit.framework in Frameworks */,
+				892E5080183C3C1B00CD4C1C /* CoreLocation.framework in Frameworks */,
 				892E504D183C3C0500CD4C1C /* CoreGraphics.framework in Frameworks */,
 				892E504F183C3C0500CD4C1C /* UIKit.framework in Frameworks */,
 				892E504B183C3C0500CD4C1C /* Foundation.framework in Frameworks */,
@@ -101,6 +110,8 @@
 		892E5049183C3C0500CD4C1C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				892E5081183C3C2200CD4C1C /* MapKit.framework */,
+				892E507F183C3C1B00CD4C1C /* CoreLocation.framework */,
 				892E504A183C3C0500CD4C1C /* Foundation.framework */,
 				892E504C183C3C0500CD4C1C /* CoreGraphics.framework */,
 				892E504E183C3C0500CD4C1C /* UIKit.framework */,
@@ -112,6 +123,8 @@
 		892E5050183C3C0500CD4C1C /* SFMapApp */ = {
 			isa = PBXGroup;
 			children = (
+				892E5083183D5D4900CD4C1C /* SFMapAnnotation.h */,
+				892E5084183D5D4900CD4C1C /* SFMapAnnotation.m */,
 				892E5059183C3C0500CD4C1C /* SFAppDelegate.h */,
 				892E505A183C3C0500CD4C1C /* SFAppDelegate.m */,
 				892E505C183C3C0500CD4C1C /* Main.storyboard */,
@@ -252,6 +265,7 @@
 			files = (
 				892E5057183C3C0500CD4C1C /* main.m in Sources */,
 				892E5061183C3C0500CD4C1C /* SFViewController.m in Sources */,
+				892E5085183D5D4900CD4C1C /* SFMapAnnotation.m in Sources */,
 				892E505B183C3C0500CD4C1C /* SFAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -7,7 +7,25 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
+#import <MapKit/MapKit.h>
+#import "SFMapAnnotation.h"
 
-@interface SFViewController : UIViewController
+#define kBgQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+
+
+@interface SFViewController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate>
+
+@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (strong, nonatomic) CLLocation *location;
+
+@property (nonatomic) CLLocationCoordinate2D pointCenter;
+@property (nonatomic) int currentDistance;
+
+@property (strong, nonatomic) IBOutlet UISearchBar *mapSearch;
+
+@property (strong, nonatomic) IBOutlet MKMapView *mapView;
+
+- (IBAction)updateCurrentLocation:(id)sender;
 
 @end
