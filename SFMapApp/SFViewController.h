@@ -14,7 +14,7 @@
 #define kBgQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
 
 
-@interface SFViewController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate>
+@interface SFViewController : UIViewController <CLLocationManagerDelegate, MKMapViewDelegate, UISearchBarDelegate>
 
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (strong, nonatomic) CLLocation *location;

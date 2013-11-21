@@ -17,12 +17,40 @@
 @implementation SFViewController
 {
     BOOL firstLaunch;
+    CLAuthorizationStatus _authorizationStatus;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
+    _authorizationStatus = [CLLocationManager authorizationStatus];
+    self.mapSearch.delegate = self;
+    
+//    if (_authorizationStatus == kCLAuthorizationStatusNotDetermined || _authorizationStatus ==  kCLAuthorizationStatusRestricted)
+//    {
+//        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"Please allow location services"
+//                                                    message:@"Please consider enabling them"
+//                                                       delegate:self
+//                                              cancelButtonTitle:@"Ok"
+//                                              otherButtonTitles: nil];
+//        
+//        [status show];
+//    }
+//    
+//    else if (_authorizationStatus == kCLAuthorizationStatusDenied)
+//    {
+//        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
+//                                                        message:@"You can't use the app unless you do :-("
+//                                                       delegate:self
+//                                              cancelButtonTitle:@"Ok"
+//                                              otherButtonTitles: nil];
+//        [status show];
+//        
+//    }
+    
+    if (_authorizationStatus == kCLAuthorizationStatusAuthorized)
+    {
     self.mapView.delegate = self;
     self.mapView.showsUserLocation = YES;
     
@@ -32,7 +60,12 @@
     [self.locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
     
     firstLaunch=TRUE;
-    NSLog(@"%hhd", firstLaunch);
+    }
+    
+       //NSLog(@"%hhd", firstLaunch);
+    
+    
+    
     
     
 //    self.mapSearch.showsCancelButton = YES;
@@ -106,7 +139,7 @@
     // https://developers.google.com/maps/documentation/places/#Authentication
     NSString *url = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/search/json?location=%f,%f&radius=%@&sensor=true&key=%@", self.pointCenter.latitude, self.pointCenter.longitude, [NSString stringWithFormat:@"%i", self.currentDistance], GOOGLE_API_KEY];
     
-    NSLog(@"%@", url);
+    //NSLog(@"%@", url);
     
     //Formulate the string as a URL object.
     NSURL *googleRequestURL=[NSURL URLWithString:url];
@@ -128,13 +161,13 @@
                           options:kNilOptions
                           error:&error];
     
-    NSLog(@"%@", json);
+    //NSLog(@"%@", json);
     
     //The results from Google will be an array obtained from the NSDictionary object with the key "results".
     NSArray* places = [json objectForKey:@"results"];
     
     //Write out the data to the console.
-    NSLog(@"Google Data: %@", places);
+    //NSLog(@"Google Data: %@", places);
     
     [self plotPositions:places];
 }
@@ -232,8 +265,61 @@
 
 - (IBAction)updateCurrentLocation:(id)sender
 {
-    [self queryGooglePlaces];
+    NSLog(@"%u", _authorizationStatus);
+    
+    if (_authorizationStatus == kCLAuthorizationStatusDenied)
+    {
+        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
+                                                        message:@"You can't use the app unless you do :-("
+                                                       delegate:self
+                                              cancelButtonTitle:@"Ok"
+                                              otherButtonTitles: nil];
+        [status show];
+        
+    } else {
+        [self queryGooglePlaces];
+    }
+    
 
     //    [self mapView];
+}
+
+//-(void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+//{
+//    
+//    
+//    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
+//    
+//    [geocoder geocodeAddressString:searchText
+//                 completionHandler:^(NSArray* placemarks, NSError* error){
+//                     for (CLPlacemark* aPlacemark in placemarks)
+//                     {
+//                         NSLog(@"%@", aPlacemark.location);
+//                         
+//                         // Process the placemark.
+//                     }
+//                 }];
+//
+//}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
+{
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
+    
+    [geocoder geocodeAddressString:searchBar.text
+                 completionHandler:^(NSArray* placemarks, NSError* error){
+                     for (CLPlacemark* aPlacemark in placemarks)
+                     {
+                         NSLog(@"%@", aPlacemark.location);
+                         
+                         // Process the placemark.
+                     }
+                 }];
+    
+
+}
+
+
+- (IBAction)searchBar:(id)sender {
 }
 @end
