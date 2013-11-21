@@ -8,6 +8,7 @@
 
 #import "SFViewController.h"
 
+#define GOOGLE_WEB_ADDRESS @"https://maps.googleapis.com/maps/api/place/search/json?location="
 #define GOOGLE_API_KEY @"AIzaSyANZFTDtVBzKXtSTT8eED7uzG5GfH2uleU"
 
 @interface SFViewController ()
@@ -24,8 +25,14 @@
 {
     [super viewDidLoad];
     
+    
+    //Check Authorization Status
     _authorizationStatus = [CLLocationManager authorizationStatus];
+    
+    //Set search bar delegate
     self.mapSearch.delegate = self;
+    
+    [self addGestureRecogniser];
     
 //    if (_authorizationStatus == kCLAuthorizationStatusNotDetermined || _authorizationStatus ==  kCLAuthorizationStatusRestricted)
 //    {
@@ -51,44 +58,17 @@
     
     if (_authorizationStatus == kCLAuthorizationStatusAuthorized)
     {
-    self.mapView.delegate = self;
-    self.mapView.showsUserLocation = YES;
+        self.mapView.delegate = self;
+        self.mapView.mapType = MKMapTypeStandard;
+        self.mapView.showsUserLocation = YES;
     
-    self.locationManager = [[CLLocationManager alloc] init];
-    self.locationManager.delegate = self;
-    [self.locationManager setDistanceFilter:kCLDistanceFilterNone];
-    [self.locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
+        self.locationManager = [[CLLocationManager alloc] init];
+        self.locationManager.delegate = self;
+        [self.locationManager setDistanceFilter:kCLDistanceFilterNone];
+        [self.locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
     
-    firstLaunch=TRUE;
+        firstLaunch = TRUE;
     }
-    
-       //NSLog(@"%hhd", firstLaunch);
-    
-    
-    
-    
-    
-//    self.mapSearch.showsCancelButton = YES;
-//
-//    self.locationManager = [[CLLocationManager alloc] init];
-//    self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters;
-//    self.locationManager.delegate = self;
-//    
-//    [self.locationManager startUpdatingLocation];
-//    
-//    self.location = [[CLLocation alloc] init];
-//    
-//    self.mapView.mapType = MKMapTypeStandard;
-//    self.mapView.showsUserLocation = YES;
-//    self.mapView.delegate = self;
-//    
-//    MKCoordinateRegion region;//= MKCoordinateRegionMakeWithDistance(self.location.coordinate, 0.5*1609.344, 0.5*1609.344);
-//    region.center.latitude = self.mapView.userLocation.coordinate.latitude;
-//    region.center.longitude = self.mapView.userLocation.coordinate.longitude;
-//    
-//    region.span = MKCoordinateSpanMake(0.00725, 0.00725);
-//    
-//    [self.mapView setRegion:region animated:YES];
     
     	// Do any additional setup after loading the view, typically from a nib.
 }
@@ -104,7 +84,6 @@
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     self.location = locations.lastObject;
-   // NSLog(@"%@", self.location);
 }
 
 
@@ -133,27 +112,27 @@
     [mv setRegion:region animated:YES];
 }
 
--(void) queryGooglePlaces//: (NSString *) googleType
+#pragma mark - Google Query Functions
+
+//Query Google Places for Map Annotations
+-(void) queryGooglePlaces
 {
-    // Build the url string to send to Google. NOTE: The GOOGLE_API_KEY is a constant that should contain your own API key that you obtain from Google. See this link for more info:
-    // https://developers.google.com/maps/documentation/places/#Authentication
-    NSString *url = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/search/json?location=%f,%f&radius=%@&sensor=true&key=%@", self.pointCenter.latitude, self.pointCenter.longitude, [NSString stringWithFormat:@"%i", self.currentDistance], GOOGLE_API_KEY];
-    
-    //NSLog(@"%@", url);
+    //Create URL for Google Places
+    NSString *googlePlacesFormula = [NSString stringWithFormat:@"%@%f,%f&radius=%@&sensor=true&key=%@", GOOGLE_WEB_ADDRESS, self.pointCenter.latitude, self.pointCenter.longitude, [NSString stringWithFormat:@"%i", self.currentDistance], GOOGLE_API_KEY];
     
     //Formulate the string as a URL object.
-    NSURL *googleRequestURL=[NSURL URLWithString:url];
+    NSURL *googleQuery = [NSURL URLWithString:googlePlacesFormula];
     
     // Retrieve the results of the URL.
     dispatch_async(kBgQueue, ^{
-        NSData* data = [NSData dataWithContentsOfURL: googleRequestURL];
+        NSData* data = [NSData dataWithContentsOfURL:googleQuery];
         [self performSelectorOnMainThread:@selector(fetchedData:) withObject:data waitUntilDone:YES];
     });
     
 }
 
+//Parse JSON Data from Google Places
 -(void)fetchedData:(NSData *)responseData {
-    //parse out the json data
     NSError* error;
     NSDictionary* json = [NSJSONSerialization
                           JSONObjectWithData:responseData
@@ -161,94 +140,66 @@
                           options:kNilOptions
                           error:&error];
     
-    //NSLog(@"%@", json);
-    
-    //The results from Google will be an array obtained from the NSDictionary object with the key "results".
+    //Array of places from Google Places API
     NSArray* places = [json objectForKey:@"results"];
-    
-    //Write out the data to the console.
-    //NSLog(@"Google Data: %@", places);
     
     [self plotPositions:places];
 }
 
-
-
 -(void)plotPositions:(NSArray *)data
 {
-    
+    //Clear annotations except user location
     for (id<MKAnnotation> annotation in self.mapView.annotations) {
         if ([annotation isKindOfClass:[SFMapAnnotation class]]) {
             [self.mapView removeAnnotation:annotation];
         }
     }
 
-    // 2 - Loop through the array of places returned from the Google API.
+    //Parse the Google Places API
     for (int i=0; i < data.count; i++) {
-        //Retrieve the NSDictionary object in each index of the array.
-        NSDictionary* place = [data objectAtIndex:i];
-        // 3 - There is a specific NSDictionary object that gives us the location info.
-        NSDictionary *geo = [place objectForKey:@"geometry"];
-        // Get the lat and long for the location.
-        NSDictionary *loc = [geo objectForKey:@"location"];
-        // 4 - Get your name and address info for adding to a pin.
-        NSString *name=[place objectForKey:@"name"];
-        //NSString *vicinity=[place objectForKey:@"vicinity"];
-        // Create a special variable to hold this coordinate info.
-        CLLocationCoordinate2D placeCoord;
-        // Set the lat and long.
-        placeCoord.latitude=[[loc objectForKey:@"lat"] doubleValue];
-        placeCoord.longitude=[[loc objectForKey:@"lng"] doubleValue];
         
-        // 5 - Create a new annotation.
+        NSDictionary* place = [data objectAtIndex:i];
+     
+        //Grab the title of the Place
+        NSString *name=[place objectForKey:@"name"];
+
+        //Add the coordinate of the Place
+        CLLocationCoordinate2D placeCoord;
+        placeCoord.latitude=[[place valueForKeyPath:@"geometry.location.lat"] doubleValue];
+        placeCoord.longitude=[[place valueForKeyPath:@"geometry.location.lng"] doubleValue];
+        
         SFMapAnnotation *placeObject = [[SFMapAnnotation alloc] initWithCoordinate:placeCoord title:name];
         
         [self.mapView addAnnotation:placeObject];
     }
 }
 
+// Define Annotation Parameters
 -(MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
-    // Define your reuse identifier.
+
     static NSString *identifier = @"SFMapAnnotation";
     
     if ([annotation isKindOfClass:[SFMapAnnotation class]]) {
         MKPinAnnotationView *annotationView = (MKPinAnnotationView *) [self.mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
+        
         if (annotationView == nil) {
             annotationView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:identifier];
         } else {
             annotationView.annotation = annotation;
         }
+        
         annotationView.pinColor = MKPinAnnotationColorGreen;
         annotationView.enabled = YES;
         annotationView.canShowCallout = YES;
         annotationView.animatesDrop = YES;
         return annotationView;
     }
+    
     return nil;
 }
 
-//- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
-//    //7
-//    if([annotation isKindOfClass:[MKUserLocation class]])
-//        return nil;
-//    
-//    //8
-//    static NSString *identifier = @"myAnnotation";
-//    MKPinAnnotationView * annotationView = (MKPinAnnotationView*)[self.mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
-//    if (!annotationView)
-//    {
-//        //9
-//        annotationView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:identifier];
-//        annotationView.pinColor = MKPinAnnotationColorPurple;
-//        annotationView.animatesDrop = YES;
-//        annotationView.canShowCallout = YES;
-//    }else {
-//        annotationView.annotation = annotation;
-//    }
-//    annotationView.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
-//    return annotationView;
-//}
 
+//Center map on new location
 -(void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
     //Get the east and west points on the map so you can calculate the distance (zoom level) of the current map view.
     MKMapRect mRect = self.mapView.visibleMapRect;
@@ -262,45 +213,13 @@
     self.pointCenter = self.mapView.centerCoordinate;
 }
 
-
+//Refresh User Location
 - (IBAction)updateCurrentLocation:(id)sender
 {
-    NSLog(@"%u", _authorizationStatus);
-    
-    if (_authorizationStatus == kCLAuthorizationStatusDenied)
-    {
-        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
-                                                        message:@"You can't use the app unless you do :-("
-                                                       delegate:self
-                                              cancelButtonTitle:@"Ok"
-                                              otherButtonTitles: nil];
-        [status show];
-        
-    } else {
-        [self queryGooglePlaces];
-    }
-    
-
-    //    [self mapView];
+    [self.mapView setCenterCoordinate:self.locationManager.location.coordinate animated:YES];
 }
 
-//-(void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
-//{
-//    
-//    
-//    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-//    
-//    [geocoder geocodeAddressString:searchText
-//                 completionHandler:^(NSArray* placemarks, NSError* error){
-//                     for (CLPlacemark* aPlacemark in placemarks)
-//                     {
-//                         NSLog(@"%@", aPlacemark.location);
-//                         
-//                         // Process the placemark.
-//                     }
-//                 }];
-//
-//}
+#pragma mark - Search Bar Declarations
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
@@ -317,6 +236,7 @@
                      CLPlacemark *placemark = [placemarks objectAtIndex:0];
                      CLLocation *location = placemark.location;
                      CLLocationCoordinate2D coordinate = location.coordinate;
+                     searchBar.text = @"";
                      [searchBar resignFirstResponder];
                       [self.mapView setCenterCoordinate:coordinate animated:YES];
                  }];
@@ -324,7 +244,55 @@
 
 }
 
-
-- (IBAction)searchBar:(id)sender {
+#pragma mark - Add Points of Interest
+- (IBAction)addPointsOfInterest:(id)sender
+{
+    NSLog(@"%u", _authorizationStatus);
+    
+    if (_authorizationStatus == kCLAuthorizationStatusDenied)
+    {
+        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
+                                                        message:@"You can't use the app unless you do :-("
+                                                       delegate:self
+                                              cancelButtonTitle:@"Ok"
+                                              otherButtonTitles: nil];
+        [status show];
+        
+    } else {
+        
+        //Query the Google Places API
+        [self queryGooglePlaces];
+    }
 }
+
+
+#pragma mark - Add New Pin to Map
+
+- (void)addGestureRecogniser
+{
+    UILongPressGestureRecognizer *gesture = [[UILongPressGestureRecognizer alloc]
+                                          initWithTarget:self action:@selector(addPinToMap:)];
+    
+    gesture.minimumPressDuration = 0.5;
+    [self.mapView addGestureRecognizer:gesture];
+}
+
+- (void)addPinToMap:(UIGestureRecognizer *)gestureRecognizer
+{
+    
+    if (gestureRecognizer.state != UIGestureRecognizerStateBegan)
+        return;
+    
+    CGPoint touchPoint = [gestureRecognizer locationInView:self.mapView];
+    CLLocationCoordinate2D touchMapCoordinate =
+    [self.mapView convertPoint:touchPoint toCoordinateFromView:self.mapView];
+    
+    SFMapAnnotation *newAnnotation = [[SFMapAnnotation alloc] init];
+    
+    newAnnotation.coordinate = touchMapCoordinate;
+    newAnnotation.title = @"New Annotation";
+    
+    [self.mapView addAnnotation:newAnnotation];
+}
+
 @end

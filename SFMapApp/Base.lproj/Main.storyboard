@@ -24,14 +24,19 @@
                                 <rect key="frame" x="0.0" y="435" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
-                                    <barButtonItem title="Points of Interest" id="Rdi-Xv-fUM">
+                                    <barButtonItem title="Points of Interest" width="143" id="Rdi-Xv-fUM">
                                         <connections>
-                                            <action selector="updateCurrentLocation:" destination="MqM-XP-rQk" id="gAc-oq-mng"/>
+                                            <action selector="addPointsOfInterest:" destination="MqM-XP-rQk" id="Vwl-sc-lYw"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Update Location" width="129" id="eCa-hx-4Ih">
+                                        <connections>
+                                            <action selector="updateCurrentLocation:" destination="MqM-XP-rQk" id="WCd-fU-x5o"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>
                             </toolbar>
-                            <searchBar contentMode="redraw" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8WT-hT-eRD">
+                            <searchBar contentMode="redraw" fixedFrame="YES" placeholder="Where would you like to go?" translatesAutoresizingMaskIntoConstraints="NO" id="8WT-hT-eRD">
                                 <rect key="frame" x="0.0" y="20" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <textInputTraits key="textInputTraits"/>

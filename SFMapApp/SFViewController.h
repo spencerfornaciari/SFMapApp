@@ -27,5 +27,6 @@
 @property (strong, nonatomic) IBOutlet MKMapView *mapView;
 
 - (IBAction)updateCurrentLocation:(id)sender;
+- (IBAction)addPointsOfInterest:(id)sender;
 
 @end
