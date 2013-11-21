@@ -42,8 +42,7 @@
     [self.toolbar setItems:[NSArray arrayWithObjects:userTrackingButton, pointsOfInterestButton, updateLocationButton, nil]];
 
     //Check Authorization Status
-    
-    //[self locationManager:self.locationManager didChangeAuthorizationStatus:[CLLocationManager authorizationStatus]];
+    [self locationManager:self.locationManager didChangeAuthorizationStatus:[CLLocationManager authorizationStatus]];
 
     _authorizationStatus = [CLLocationManager authorizationStatus];
     
@@ -66,12 +65,7 @@
     
     else if (_authorizationStatus == kCLAuthorizationStatusDenied)
     {
-        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
-                                                        message:@"You can't use the app unless you do :-("
-                                                       delegate:self
-                                              cancelButtonTitle:@"Ok"
-                                              otherButtonTitles: nil];
-        [status show];
+        [self checkLocationStatus];
         
     }
     
@@ -320,10 +314,10 @@
     [status show];
 }
 
-//- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
-//{
-//    NSLog(@"%u", status);
-//    _authorizationStatus = status;
-//}
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    NSLog(@"%u", status);
+    _authorizationStatus = status;
+}
 
 @end

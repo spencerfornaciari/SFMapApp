@@ -475,6 +475,7 @@
 				892E507B183C3C0500CD4C1C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		892E507C183C3C0500CD4C1C /* Build configuration list for PBXNativeTarget "SFMapAppTests" */ = {
 			isa = XCConfigurationList;
@@ -483,6 +484,7 @@
 				892E507E183C3C0500CD4C1C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

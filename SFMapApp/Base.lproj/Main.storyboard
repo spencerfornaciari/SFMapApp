@@ -16,13 +16,19 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0VQ-yI-OVA">
-                                <rect key="frame" x="-7" y="64" width="334" height="371"/>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0VQ-yI-OVA">
+                                <rect key="frame" x="0.0" y="54" width="320" height="382"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="320" id="uu3-hu-2KI"/>
+                                </constraints>
                             </mapView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NLT-Jc-yUf">
-                                <rect key="frame" x="0.0" y="435" width="320" height="44"/>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NLT-Jc-yUf">
+                                <rect key="frame" x="0.0" y="436" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="320" id="ozg-0X-tfg"/>
+                                </constraints>
                                 <items/>
                             </toolbar>
                             <searchBar contentMode="redraw" fixedFrame="YES" placeholder="Where would you like to go?" translatesAutoresizingMaskIntoConstraints="NO" id="8WT-hT-eRD">
@@ -32,6 +38,14 @@
                             </searchBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="NLT-Jc-yUf" firstAttribute="top" secondItem="0VQ-yI-OVA" secondAttribute="bottom" id="0UH-dd-JEE"/>
+                            <constraint firstItem="0VQ-yI-OVA" firstAttribute="top" secondItem="z02-Bk-6eM" secondAttribute="top" constant="54" id="WQ9-T8-4fH"/>
+                            <constraint firstItem="NLT-Jc-yUf" firstAttribute="leading" secondItem="z02-Bk-6eM" secondAttribute="leading" id="Wp6-kc-4g9"/>
+                            <constraint firstAttribute="bottom" secondItem="NLT-Jc-yUf" secondAttribute="bottom" id="pME-ZK-EgS"/>
+                            <constraint firstAttribute="bottom" secondItem="0VQ-yI-OVA" secondAttribute="bottom" constant="44" id="qvP-N0-9tQ"/>
+                            <constraint firstItem="0VQ-yI-OVA" firstAttribute="leading" secondItem="z02-Bk-6eM" secondAttribute="leading" id="xhq-LI-L5i"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="mapSearch" destination="8WT-hT-eRD" id="SCz-Ib-qLb"/>
