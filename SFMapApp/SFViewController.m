@@ -42,36 +42,41 @@
     [self.toolbar setItems:[NSArray arrayWithObjects:userTrackingButton, pointsOfInterestButton, updateLocationButton, nil]];
 
     //Check Authorization Status
+    
+    //[self locationManager:self.locationManager didChangeAuthorizationStatus:[CLLocationManager authorizationStatus]];
+
     _authorizationStatus = [CLLocationManager authorizationStatus];
     
     //Set search bar delegate
     self.mapSearch.delegate = self;
     
+    //Add Gesture Recognizer to add annotations
     [self addGestureRecogniser];
     
-//    if (_authorizationStatus == kCLAuthorizationStatusNotDetermined || _authorizationStatus ==  kCLAuthorizationStatusRestricted)
-//    {
-//        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"Please allow location services"
-//                                                    message:@"Please consider enabling them"
-//                                                       delegate:self
-//                                              cancelButtonTitle:@"Ok"
-//                                              otherButtonTitles: nil];
-//        
-//        [status show];
-//    }
-//    
-//    else if (_authorizationStatus == kCLAuthorizationStatusDenied)
-//    {
-//        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
-//                                                        message:@"You can't use the app unless you do :-("
-//                                                       delegate:self
-//                                              cancelButtonTitle:@"Ok"
-//                                              otherButtonTitles: nil];
-//        [status show];
-//        
-//    }
+    if (_authorizationStatus == kCLAuthorizationStatusNotDetermined || _authorizationStatus ==  kCLAuthorizationStatusRestricted)
+    {
+        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"Location services not confirmed"
+                                                    message:@"Please consider enabling them"
+                                                       delegate:self
+                                              cancelButtonTitle:@"Ok"
+                                              otherButtonTitles: nil];
+        
+        [status show];
+    }
     
-    if (_authorizationStatus == kCLAuthorizationStatusAuthorized)
+    else if (_authorizationStatus == kCLAuthorizationStatusDenied)
+    {
+        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
+                                                        message:@"You can't use the app unless you do :-("
+                                                       delegate:self
+                                              cancelButtonTitle:@"Ok"
+                                              otherButtonTitles: nil];
+        [status show];
+        
+    }
+    
+    //(_authorizationStatus == kCLAuthorizationStatusAuthorized)
+    else
     {
         self.mapView.delegate = self;
         self.mapView.mapType = MKMapTypeStandard;
@@ -84,11 +89,8 @@
     
         firstLaunch = TRUE;
     }
-    
     	// Do any additional setup after loading the view, typically from a nib.
 }
-
-
 
 - (void)didReceiveMemoryWarning
 {
@@ -107,24 +109,27 @@
     [self.mapView setCenterCoordinate:userLocation.coordinate animated:YES];
 }
 
--(void)mapView:(MKMapView *)mv didAddAnnotationViews:(NSArray *)views
+-(void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-    //Zoom back to the user location after adding a new set of annotations.
-    //Get the center point of the visible map.
-   CLLocationCoordinate2D centre = [mv centerCoordinate];
-    NSLog(@"%f, %f", centre.latitude, centre.longitude);
-    MKCoordinateRegion region;
+   //Get the center point of the visible map.
+   CLLocationCoordinate2D center = [mapView centerCoordinate];
+   MKCoordinateRegion region;
+    
     //If this is the first launch of the app, then set the center point of the map to the user's location.
     if (firstLaunch) {
         region = MKCoordinateRegionMakeWithDistance(self.locationManager.location.coordinate,1000,1000);
-        NSLog(@"%f, %f", self.locationManager.location.coordinate.latitude, self.locationManager.location.coordinate.longitude);
-        firstLaunch=NO;
-    }else {
-        //Set the center point to the visible region of the map and change the radius to match the search radius passed to the Google query string.
-        region = MKCoordinateRegionMakeWithDistance(centre,self.currentDistance,self.currentDistance);
+        
+        firstLaunch = FALSE;
     }
+    
+    else
+    {
+        //Set the center point to the visible region of the map and change the radius to match the search radius passed to the Google query string.
+        region = MKCoordinateRegionMakeWithDistance(center, self.currentDistance, self.currentDistance);
+    }
+    
     //Set the visible region of the map.
-    [mv setRegion:region animated:YES];
+    [mapView setRegion:region animated:YES];
 }
 
 #pragma mark - Google Query Functions
@@ -228,55 +233,50 @@
     self.pointCenter = self.mapView.centerCoordinate;
 }
 
-//Refresh User Location
-- (IBAction)updateCurrentLocation:(id)sender
-{
-    [self.mapView setCenterCoordinate:self.locationManager.location.coordinate animated:YES];
-}
+
 
 #pragma mark - Search Bar Declarations
 
+//Finding coordinates from a location search
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
+    searchBar.keyboardType = UIKeyboardTypeWebSearch;
+    
     CLGeocoder *geocoder = [[CLGeocoder alloc] init];
     
     [geocoder geocodeAddressString:searchBar.text
                  completionHandler:^(NSArray* placemarks, NSError* error){
-                     for (CLPlacemark *aPlacemark in placemarks)
-                     {
-                         NSLog(@"%@", aPlacemark.location);
-                         
-                         // Process the placemark.
-                     }
+            
                      CLPlacemark *placemark = [placemarks objectAtIndex:0];
                      CLLocation *location = placemark.location;
                      CLLocationCoordinate2D coordinate = location.coordinate;
                      searchBar.text = @"";
                      [searchBar resignFirstResponder];
                       [self.mapView setCenterCoordinate:coordinate animated:YES];
+                     
                  }];
-   
+}
 
+//Refresh User Location
+- (IBAction)updateCurrentLocation:(id)sender
+{
+    if (_authorizationStatus == kCLAuthorizationStatusAuthorized)
+    {
+        [self.mapView setCenterCoordinate:self.locationManager.location.coordinate animated:YES];
+    } else {
+        [self checkLocationStatus];
+    }
 }
 
 #pragma mark - Add Points of Interest
 - (IBAction)addPointsOfInterest:(id)sender
 {
-    NSLog(@"%u", _authorizationStatus);
-    
-    if (_authorizationStatus == kCLAuthorizationStatusDenied)
+    if (_authorizationStatus == kCLAuthorizationStatusAuthorized)
     {
-        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
-                                                        message:@"You can't use the app unless you do :-("
-                                                       delegate:self
-                                              cancelButtonTitle:@"Ok"
-                                              otherButtonTitles: nil];
-        [status show];
-        
-    } else {
-        
         //Query the Google Places API
         [self queryGooglePlaces];
+    } else {
+        [self checkLocationStatus];
     }
 }
 
@@ -309,5 +309,21 @@
     
     [self.mapView addAnnotation:newAnnotation];
 }
+
+-(void)checkLocationStatus
+{
+    UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
+                                                    message:@"You can't use the app unless you do :-("
+                                                   delegate:self
+                                          cancelButtonTitle:@"Ok"
+                                          otherButtonTitles: nil];
+    [status show];
+}
+
+//- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+//{
+//    NSLog(@"%u", status);
+//    _authorizationStatus = status;
+//}
 
 @end
