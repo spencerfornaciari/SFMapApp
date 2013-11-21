@@ -17,13 +17,29 @@
 
 @implementation SFViewController
 {
-    BOOL firstLaunch;
+    BOOL _firstLaunch;
     CLAuthorizationStatus _authorizationStatus;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    //Declare CLLocation Manager
+    self.locationManager = [[CLLocationManager alloc] init];
+    self.locationManager.delegate = self;
+    [self.locationManager setDistanceFilter:kCLDistanceFilterNone];
+    [self.locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
+    [self.locationManager startUpdatingLocation];
+    
+    self.location = [[CLLocation alloc] init];
+    NSLog(@"Initial location: %f,%f", self.locationManager.location.coordinate.latitude, self.locationManager.location.coordinate.longitude);
+    
+    //Declare MapView
+    self.mapView.delegate = self;
+    self.mapView.mapType = MKMapTypeStandard;
+    self.mapView.showsUserLocation = YES;
+    
     
     //Declare Toolbar Items
     MKUserTrackingBarButtonItem *userTrackingButton = [[MKUserTrackingBarButtonItem alloc] initWithMapView:self.mapView];
@@ -40,50 +56,17 @@
                                                                             action:@selector(updateCurrentLocation:)];
     
     [self.toolbar setItems:[NSArray arrayWithObjects:userTrackingButton, pointsOfInterestButton, updateLocationButton, nil]];
-
-    //Check Authorization Status
-    [self locationManager:self.locationManager didChangeAuthorizationStatus:[CLLocationManager authorizationStatus]];
-
-    _authorizationStatus = [CLLocationManager authorizationStatus];
+ 
     
     //Set search bar delegate
     self.mapSearch.delegate = self;
     
     //Add Gesture Recognizer to add annotations
     [self addGestureRecogniser];
+
+    _firstLaunch = TRUE;
     
-    if (_authorizationStatus == kCLAuthorizationStatusNotDetermined || _authorizationStatus ==  kCLAuthorizationStatusRestricted)
-    {
-        UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"Location services not confirmed"
-                                                    message:@"Please consider enabling them"
-                                                       delegate:self
-                                              cancelButtonTitle:@"Ok"
-                                              otherButtonTitles: nil];
-        
-        [status show];
-    }
-    
-    else if (_authorizationStatus == kCLAuthorizationStatusDenied)
-    {
-        [self checkLocationStatus];
-        
-    }
-    
-    //(_authorizationStatus == kCLAuthorizationStatusAuthorized)
-    else
-    {
-        self.mapView.delegate = self;
-        self.mapView.mapType = MKMapTypeStandard;
-        self.mapView.showsUserLocation = YES;
-    
-        self.locationManager = [[CLLocationManager alloc] init];
-        self.locationManager.delegate = self;
-        [self.locationManager setDistanceFilter:kCLDistanceFilterNone];
-        [self.locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
-    
-        firstLaunch = TRUE;
-    }
-    	// Do any additional setup after loading the view, typically from a nib.
+    // Do any additional setup after loading the view, typically from a nib.
 }
 
 - (void)didReceiveMemoryWarning
@@ -100,7 +83,7 @@
 
 -(void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
-    [self.mapView setCenterCoordinate:userLocation.coordinate animated:YES];
+    //[self.mapView setCenterCoordinate:userLocation.coordinate animated:YES];
 }
 
 -(void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
@@ -110,10 +93,10 @@
    MKCoordinateRegion region;
     
     //If this is the first launch of the app, then set the center point of the map to the user's location.
-    if (firstLaunch) {
+    if (_firstLaunch) {
         region = MKCoordinateRegionMakeWithDistance(self.locationManager.location.coordinate,1000,1000);
         
-        firstLaunch = FALSE;
+        _firstLaunch = FALSE;
     }
     
     else
@@ -227,8 +210,6 @@
     self.pointCenter = self.mapView.centerCoordinate;
 }
 
-
-
 #pragma mark - Search Bar Declarations
 
 //Finding coordinates from a location search
@@ -256,10 +237,17 @@
 {
     if (_authorizationStatus == kCLAuthorizationStatusAuthorized)
     {
-        [self.mapView setCenterCoordinate:self.locationManager.location.coordinate animated:YES];
+        [self updateUserLocation];
+        //[self.mapView setCenterCoordinate:self.location.coordinate animated:YES];
     } else {
         [self checkLocationStatus];
     }
+}
+
+-(void)updateUserLocation
+{
+    NSLog(@"%f,%f", self.location.coordinate.latitude, self.location.coordinate.longitude);
+    [self.mapView setCenterCoordinate:self.location.coordinate animated:YES];
 }
 
 #pragma mark - Add Points of Interest
@@ -273,7 +261,6 @@
         [self checkLocationStatus];
     }
 }
-
 
 #pragma mark - Add New Pin to Map
 
@@ -304,10 +291,12 @@
     [self.mapView addAnnotation:newAnnotation];
 }
 
+#pragma mark - Checking CLAuthorizationStatus
+
 -(void)checkLocationStatus
 {
-    UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"You have disabled location services"
-                                                    message:@"You can't use the app unless you do :-("
+    UIAlertView *status =[[UIAlertView alloc] initWithTitle:@"Location services are disabled"
+                                                    message:@"This app won't work without them!"
                                                    delegate:self
                                           cancelButtonTitle:@"Ok"
                                           otherButtonTitles: nil];
@@ -316,8 +305,14 @@
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
-    NSLog(@"%u", status);
     _authorizationStatus = status;
+    if (status == kCLAuthorizationStatusDenied) {
+        [self checkLocationStatus];
+    } else if (status == kCLAuthorizationStatusAuthorized) {
+        NSLog(@"CLAuthorizationStatus - Authorized!");
+    } else {
+        NSLog(@"CLAuthorizationStatus - Unclear");
+    }
 }
 
 @end
