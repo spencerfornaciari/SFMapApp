@@ -25,7 +25,22 @@
 {
     [super viewDidLoad];
     
+    //Declare Toolbar Items
+    MKUserTrackingBarButtonItem *userTrackingButton = [[MKUserTrackingBarButtonItem alloc] initWithMapView:self.mapView];
     
+    UIBarButtonItem *pointsOfInterestButton = [[UIBarButtonItem alloc] initWithTitle:@"Points of Interest"
+                                                                               style:UIBarButtonItemStyleBordered
+                                                                              target:self
+                                                                              action:@selector(addPointsOfInterest:)];
+
+    
+    UIBarButtonItem *updateLocationButton = [[UIBarButtonItem alloc] initWithTitle:@"Update User"
+                                                                             style:UIBarButtonItemStyleBordered
+                                                                            target:self
+                                                                            action:@selector(updateCurrentLocation:)];
+    
+    [self.toolbar setItems:[NSArray arrayWithObjects:userTrackingButton, pointsOfInterestButton, updateLocationButton, nil]];
+
     //Check Authorization Status
     _authorizationStatus = [CLLocationManager authorizationStatus];
     

@@ -23,18 +23,7 @@
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NLT-Jc-yUf">
                                 <rect key="frame" x="0.0" y="435" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                <items>
-                                    <barButtonItem title="Points of Interest" width="143" id="Rdi-Xv-fUM">
-                                        <connections>
-                                            <action selector="addPointsOfInterest:" destination="MqM-XP-rQk" id="Vwl-sc-lYw"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem title="Update Location" width="129" id="eCa-hx-4Ih">
-                                        <connections>
-                                            <action selector="updateCurrentLocation:" destination="MqM-XP-rQk" id="WCd-fU-x5o"/>
-                                        </connections>
-                                    </barButtonItem>
-                                </items>
+                                <items/>
                             </toolbar>
                             <searchBar contentMode="redraw" fixedFrame="YES" placeholder="Where would you like to go?" translatesAutoresizingMaskIntoConstraints="NO" id="8WT-hT-eRD">
                                 <rect key="frame" x="0.0" y="20" width="320" height="44"/>
@@ -47,6 +36,8 @@
                     <connections>
                         <outlet property="mapSearch" destination="8WT-hT-eRD" id="SCz-Ib-qLb"/>
                         <outlet property="mapView" destination="0VQ-yI-OVA" id="5mG-KD-ge3"/>
+                        <outlet property="toolbar" destination="NLT-Jc-yUf" id="9AP-94-XJf"/>
+                        <outlet property="view" destination="NLT-Jc-yUf" id="6ON-IC-22D"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HcZ-cM-ES6" userLabel="First Responder" sceneMemberID="firstResponder"/>

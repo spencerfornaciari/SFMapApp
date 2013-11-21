@@ -22,8 +22,8 @@
 @property (nonatomic) CLLocationCoordinate2D pointCenter;
 @property (nonatomic) int currentDistance;
 
+@property (strong, nonatomic) IBOutlet UIToolbar *toolbar;
 @property (strong, nonatomic) IBOutlet UISearchBar *mapSearch;
-
 @property (strong, nonatomic) IBOutlet MKMapView *mapView;
 
 - (IBAction)updateCurrentLocation:(id)sender;
