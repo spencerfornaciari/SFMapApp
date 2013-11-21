@@ -308,14 +308,19 @@
     
     [geocoder geocodeAddressString:searchBar.text
                  completionHandler:^(NSArray* placemarks, NSError* error){
-                     for (CLPlacemark* aPlacemark in placemarks)
+                     for (CLPlacemark *aPlacemark in placemarks)
                      {
                          NSLog(@"%@", aPlacemark.location);
                          
                          // Process the placemark.
                      }
+                     CLPlacemark *placemark = [placemarks objectAtIndex:0];
+                     CLLocation *location = placemark.location;
+                     CLLocationCoordinate2D coordinate = location.coordinate;
+                     [searchBar resignFirstResponder];
+                      [self.mapView setCenterCoordinate:coordinate animated:YES];
                  }];
-    
+   
 
 }
 
