@@ -33,7 +33,6 @@
     [self.locationManager startUpdatingLocation];
     
     self.location = [[CLLocation alloc] init];
-    NSLog(@"Initial location: %f,%f", self.locationManager.location.coordinate.latitude, self.locationManager.location.coordinate.longitude);
     
     //Declare MapView
     self.mapView.delegate = self;
@@ -95,7 +94,6 @@
     //If this is the first launch of the app, then set the center point of the map to the user's location.
     if (_firstLaunch) {
         region = MKCoordinateRegionMakeWithDistance(self.locationManager.location.coordinate,1000,1000);
-        
         _firstLaunch = FALSE;
     }
     
@@ -116,7 +114,7 @@
 {
     //Create URL for Google Places
     NSString *googlePlacesFormula = [NSString stringWithFormat:@"%@%f,%f&radius=%@&sensor=true&key=%@", GOOGLE_WEB_ADDRESS, self.pointCenter.latitude, self.pointCenter.longitude, [NSString stringWithFormat:@"%i", self.currentDistance], GOOGLE_API_KEY];
-    
+
     //Formulate the string as a URL object.
     NSURL *googleQuery = [NSURL URLWithString:googlePlacesFormula];
     
@@ -128,7 +126,7 @@
     
 }
 
-//Parse JSON Data from Google Places
+//Parse JSON Data from Google Places API
 -(void)fetchedData:(NSData *)responseData {
     NSError* error;
     NSDictionary* json = [NSJSONSerialization
@@ -246,7 +244,7 @@
 
 -(void)updateUserLocation
 {
-    NSLog(@"%f,%f", self.location.coordinate.latitude, self.location.coordinate.longitude);
+    //NSLog(@"%f,%f", self.location.coordinate.latitude, self.location.coordinate.longitude);
     [self.mapView setCenterCoordinate:self.location.coordinate animated:YES];
 }
 
